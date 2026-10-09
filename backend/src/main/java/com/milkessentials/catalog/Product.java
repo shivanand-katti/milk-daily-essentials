@@ -39,7 +39,7 @@ public class Product {
     private boolean available;
 
     @Column(name = "stock_quantity")
-    private Long stockQuantity;
+    private Integer stockQuantity;
 
     protected Product() {
     }
@@ -76,7 +76,7 @@ public class Product {
         return available;
     }
 
-    public Long getStockQuantity() {
+    public Integer getStockQuantity() {
         return stockQuantity;
     }
 }
