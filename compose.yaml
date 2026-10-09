@@ -1,0 +1,23 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: milk-essentials-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-milk_essentials}
+      MYSQL_USER: ${DB_USERNAME:-milk_app}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-replace_me}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-local_root_password_only}
+    ports:
+      - "3306:3306"
+    volumes:
+      - milk_essentials_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-local_root_password_only}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+volumes:
+  milk_essentials_mysql_data:
