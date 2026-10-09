@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: milk-essentials-api
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/milk_essentials?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC}
+    username: ${DB_USERNAME:milk_app}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: ${PORT:8080}
