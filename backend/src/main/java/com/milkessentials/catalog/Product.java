@@ -36,7 +36,7 @@ public class Product {
     private String imageUrl;
 
     @Column(name = "is_available", nullable = false)
-    private boolean available;
+    private boolean available = true;
 
     @Column(name = "stock_quantity")
     private Integer stockQuantity;
@@ -44,39 +44,22 @@ public class Product {
     protected Product() {
     }
 
-    public Long getId() {
-        return id;
-    }
+    public Long getId() { return id; }
+    public String getSku() { return sku; }
+    public String getName() { return name; }
+    public String getDescription() { return description; }
+    public String getUnit() { return unit; }
+    public BigDecimal getPrice() { return price; }
+    public String getImageUrl() { return imageUrl; }
+    public boolean isAvailable() { return available; }
+    public Integer getStockQuantity() { return stockQuantity; }
 
-    public String getSku() {
-        return sku;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public Integer getStockQuantity() {
-        return stockQuantity;
-    }
+    public void setSku(String sku) { this.sku = sku; }
+    public void setName(String name) { this.name = name; }
+    public void setDescription(String description) { this.description = description; }
+    public void setUnit(String unit) { this.unit = unit; }
+    public void setPrice(BigDecimal price) { this.price = price; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+    public void setAvailable(boolean available) { this.available = available; }
+    public void setStockQuantity(Integer stockQuantity) { this.stockQuantity = stockQuantity; }
 }
