@@ -11,7 +11,7 @@ public record ProductResponse(
         BigDecimal price,
         String imageUrl,
         boolean available,
-        Long stockQuantity
+        Integer stockQuantity
 ) {
     public static ProductResponse from(Product product) {
         return new ProductResponse(
