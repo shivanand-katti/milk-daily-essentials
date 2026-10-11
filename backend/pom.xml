@@ -15,7 +15,7 @@
     <artifactId>milk-essentials-api</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <name>milk-essentials-api</name>
-    <description>REST API for the Milk & Daily Essentials platform</description>
+    <description>REST API for the Milk and Daily Essentials platform</description>
 
     <properties>
         <java.version>17</java.version>
