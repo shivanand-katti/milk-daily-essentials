@@ -36,7 +36,7 @@ public class AdminProductController {
     private final String configuredAdminKey;
 
     public AdminProductController(ProductRepository productRepository,
-            @Value("${app.admin-api-key:}") String configuredAdminKey) {
+            @Value("${ADMIN_API_KEY:}") String configuredAdminKey) {
         this.productRepository = productRepository;
         this.configuredAdminKey = configuredAdminKey;
     }
