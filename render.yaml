@@ -19,3 +19,10 @@ services:
         sync: false
       - key: OPENROUTER_API_KEY
         sync: false
+
+  - type: web
+    name: milk-daily-essentials-storefront
+    runtime: static
+    rootDir: storefront
+    buildCommand: echo "No build step required"
+    staticPublishPath: .
