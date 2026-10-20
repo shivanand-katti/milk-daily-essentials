@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f1">
+  <meta name="description" content="Shop fresh milk, dairy and everyday essentials from Fresh Milk.">
+  <title>Fresh Milk | Everyday essentials</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="Fresh Milk home"><span class="brand-mark" aria-hidden="true">fm</span><span class="brand-copy">fresh milk <small>DAILY ESSENTIALS</small></span></a>
+    <a class="header-link" href="#products">Shop products <span aria-hidden="true">↗</span></a>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> YOUR EVERYDAY STORE</p>
+        <h1>Good essentials.<br><span>Right at home.</span></h1>
+        <p class="hero-description">Fresh dairy and everyday favourites, all in one simple place.</p>
+        <a class="hero-cta" href="#products">Explore the catalog <span aria-hidden="true">↓</span></a>
+        <div class="hero-note"><span aria-hidden="true">✳</span> A little more convenience in every day.</div>
+      </div>
+      <div class="hero-art" aria-hidden="true"><div class="sun-disc"></div><div class="art-leaf leaf-one"></div><div class="art-leaf leaf-two"></div><div class="milk-carton"><div class="carton-top"></div><div class="carton-label">fresh<br><b>milk</b></div><div class="carton-wave"></div></div><div class="art-orange"></div><div class="art-spark spark-one">✳</div><div class="art-spark spark-two">✳</div></div>
+    </section>
+    <section class="catalog-section" id="products">
+      <div class="catalog-top"><div><p class="eyebrow">THE EVERYDAY EDIT</p><h2>Shop the catalog</h2><p class="section-description">Browse what's available in our store today.</p></div><div class="catalog-meta"><span class="live-dot"></span><span id="catalog-count">Loading products…</span></div></div>
+      <div class="catalog-controls">
+        <label class="search-box"><span aria-hidden="true">⌕</span><input id="product-search" type="search" placeholder="Search milk, rice, eggs…" autocomplete="off" aria-label="Search products"><kbd>SEARCH</kbd></label>
+        <div id="category-filters" class="category-filters" aria-label="Filter by category"><button class="filter-chip active" type="button" data-category="All">All products</button></div>
+      </div>
+      <div id="catalog-state" class="catalog-state" role="status" aria-live="polite"><span class="loader" aria-hidden="true"></span><span>Connecting to the store…</span></div>
+      <div id="product-grid" class="product-grid" aria-label="Available products"></div>
+      <div id="empty-state" class="empty-state" hidden><span class="empty-icon" aria-hidden="true">⌕</span><h3>No matching products</h3><p>Try another search or choose a different category.</p><button id="clear-filters" class="secondary-button" type="button">Clear filters</button></div>
+      <div class="catalog-footer"><span>Fresh Milk <b>·</b> Everyday essentials</span><button id="retry-button" class="text-button" type="button" hidden>Try again ↻</button></div>
+    </section>
+    <section class="promise-strip"><div><span class="promise-icon">✳</span><span><b>Everyday essentials</b><small>Useful products for your routine</small></span></div><div><span class="promise-icon">♡</span><span><b>Simple browsing</b><small>Clear prices and pack sizes</small></span></div><div><span class="promise-icon">↻</span><span><b>Catalog stays current</b><small>Loaded from our live product API</small></span></div></section>
+  </main>
+  <footer class="site-footer"><a class="footer-brand" href="./">fresh milk</a><span>Good essentials for everyday living.</span><span>© <span id="year"></span> Fresh Milk</span></footer>
+</body>
+</html>
