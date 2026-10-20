@@ -9,23 +9,23 @@ export class ProductApiService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl + '/admin/products';
 
-  list(apiKey: string): Observable<Product[]> {
-    return this.http.get<Product[]>(this.baseUrl, { headers: this.headers(apiKey) });
+  list(username: string, password: string): Observable<Product[]> {
+    return this.http.get<Product[]>(this.baseUrl, { headers: this.headers(username, password) });
   }
 
-  create(apiKey: string, product: ProductPayload): Observable<Product> {
-    return this.http.post<Product>(this.baseUrl, product, { headers: this.headers(apiKey) });
+  create(username: string, password: string, product: ProductPayload): Observable<Product> {
+    return this.http.post<Product>(this.baseUrl, product, { headers: this.headers(username, password) });
   }
 
-  update(apiKey: string, id: number, product: ProductPayload): Observable<Product> {
-    return this.http.put<Product>(this.baseUrl + '/' + id, product, { headers: this.headers(apiKey) });
+  update(username: string, password: string, id: number, product: ProductPayload): Observable<Product> {
+    return this.http.put<Product>(this.baseUrl + '/' + id, product, { headers: this.headers(username, password) });
   }
 
-  delete(apiKey: string, id: number): Observable<void> {
-    return this.http.delete<void>(this.baseUrl + '/' + id, { headers: this.headers(apiKey) });
+  delete(username: string, password: string, id: number): Observable<void> {
+    return this.http.delete<void>(this.baseUrl + '/' + id, { headers: this.headers(username, password) });
   }
 
-  private headers(apiKey: string): HttpHeaders {
-    return new HttpHeaders({ 'X-Admin-Api-Key': apiKey });
+  private headers(username: string, password: string): HttpHeaders {
+    return new HttpHeaders({ Authorization: 'Basic ' + btoa(username + ':' + password) });
   }
 }
