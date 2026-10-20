@@ -72,7 +72,7 @@ const emptyForm = (): ProductForm => ({
 
         <section class="catalog card">
           <div class="catalog-heading"><div><h3>Product catalog</h3><p>Search and update the items customers can order.</p></div>
-            <div class="catalog-tools"><input aria-label="Search products" class="search" [(ngModel)]="searchTerm" name="searchTerm" placeholder="⌕  Search name or SKU"><button class="button outline" (click)="loadProducts()" [disabled]="loading || !adminPassword.trim()">↻ Refresh</button></div></div>
+            <div class="catalog-tools"><input aria-label="Search products" class="search" [(ngModel)]="searchTerm" name="searchTerm" placeholder="⌕  Search name or SKU"><button class="button outline" (click)="loadProducts()" [disabled]="loading || !authenticated">↻ Refresh</button></div></div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>PRODUCT</th><th>SKU</th><th>PRICE</th><th>STOCK</th><th>STATUS</th><th class="right">ACTIONS</th></tr></thead>
