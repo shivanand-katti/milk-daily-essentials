@@ -226,7 +226,7 @@
       const icon = document.createElement('span'); icon.textContent = '🧺';
       const title = document.createElement('b'); title.textContent = 'A little room for good things.';
       const message = document.createElement('p'); message.textContent = 'Add a few everyday favourites to get started.';
-      const button = document.createElement('button'); button.className = 'primary-button'; button.type = 'button'; button.textContent = 'Explore products ↘'; button.addEventListener('click', closeCart);
+      const button = document.createElement('button'); button.id = 'start-shopping'; button.className = 'primary-button'; button.type = 'button'; button.textContent = 'Explore products ↘'; button.addEventListener('click', closeCart);
       blank.append(icon, title, message, button);
       cartItems.append(blank);
       return;
