@@ -51,11 +51,13 @@ const emptyForm = (): ProductForm => ({
         </section>
 
         <section class="connection card">
-          <div class="section-heading"><div><h3>API access</h3><p>Enter the admin API key configured in Render. It stays in this page's memory only.</p></div>
-            <span class="secure-label">🔒 Key not saved</span></div>
+          <div class="section-heading"><div><h3>Administrator login</h3><p>Sign in with ADMIN_USERNAME and ADMIN_PASSWORD configured in Render. Credentials stay in this page's memory only.</p></div>
+            <span class="secure-label">🔒 Not saved</span></div>
           <form class="key-form" (ngSubmit)="connect()">
-            <input aria-label="Admin API key" type="password" name="apiKey" [(ngModel)]="apiKey" placeholder="Paste ADMIN_API_KEY from Render" autocomplete="off" required>
-            <button class="button dark" type="submit" [disabled]="loading || !apiKey.trim()">{{ loading ? 'Connecting…' : 'Connect & load products' }}</button>
+            <input aria-label="Admin username" type="text" name="adminUsername" [(ngModel)]="adminUsername" placeholder="Administrator username" autocomplete="username" required>
+            <input aria-label="Admin password" type="password" name="adminPassword" [(ngModel)]="adminPassword" placeholder="Administrator password" autocomplete="current-password" required>
+            <button class="button dark" type="submit" [disabled]="loading || !adminUsername.trim() || !adminPassword">{{ loading ? 'Signing in…' : (authenticated ? 'Refresh session' : 'Sign in & load products') }}</button>
+            <button *ngIf="authenticated" class="button outline" type="button" (click)="logout()">Sign out</button>
           </form>
         </section>
 
@@ -70,7 +72,7 @@ const emptyForm = (): ProductForm => ({
 
         <section class="catalog card">
           <div class="catalog-heading"><div><h3>Product catalog</h3><p>Search and update the items customers can order.</p></div>
-            <div class="catalog-tools"><input aria-label="Search products" class="search" [(ngModel)]="searchTerm" name="searchTerm" placeholder="⌕  Search name or SKU"><button class="button outline" (click)="loadProducts()" [disabled]="loading || !apiKey.trim()">↻ Refresh</button></div></div>
+            <div class="catalog-tools"><input aria-label="Search products" class="search" [(ngModel)]="searchTerm" name="searchTerm" placeholder="⌕  Search name or SKU"><button class="button outline" (click)="loadProducts()" [disabled]="loading || !adminPassword.trim()">↻ Refresh</button></div></div>
           <div class="table-wrap">
             <table>
               <thead><tr><th>PRODUCT</th><th>SKU</th><th>PRICE</th><th>STOCK</th><th>STATUS</th><th class="right">ACTIONS</th></tr></thead>
@@ -116,7 +118,9 @@ const emptyForm = (): ProductForm => ({
 })
 export class AppComponent {
   private readonly api = inject(ProductApiService);
-  apiKey = '';
+  adminUsername = '';
+  adminPassword = '';
+  authenticated = false;
   products: Product[] = [];
   loading = false;
   saving = false;
@@ -137,11 +141,12 @@ export class AppComponent {
   get lowStockCount(): number { return this.products.filter(p => p.stockQuantity !== null && p.stockQuantity <= 10).length; }
   get catalogValue(): number { return this.products.reduce((sum, p) => sum + p.price * (p.stockQuantity ?? 0), 0); }
 
-  connect(): void { if (this.apiKey.trim()) this.loadProducts(); }
+  connect(): void { if (this.adminUsername.trim() && this.adminPassword) this.loadProducts(); }
+  logout(): void { this.adminPassword = ''; this.authenticated = false; this.products = []; this.message = 'Signed out.'; this.isError = false; }
   loadProducts(): void {
     this.loading = true; this.message = ''; this.isError = false;
-    this.api.list(this.apiKey.trim()).subscribe({
-      next: products => { this.products = products; this.loading = false; this.message = 'Catalog loaded successfully.'; },
+    this.api.list(this.adminUsername.trim(), this.adminPassword).subscribe({
+      next: products => { this.products = products; this.loading = false; this.authenticated = true; this.message = 'Signed in. Catalog loaded successfully.'; },
       error: error => { this.loading = false; this.reportError(error, 'Could not load products.'); }
     });
   }
@@ -162,15 +167,15 @@ export class AppComponent {
       unit: this.form.unit.trim(), price: Number(this.form.price), imageUrl: this.form.imageUrl.trim(), available: this.form.available,
       stockQuantity: this.form.stockQuantity === null ? null : Number(this.form.stockQuantity) };
     this.saving = true; this.editorError = '';
-    const request = this.editing ? this.api.update(this.apiKey.trim(), this.editing.id, payload) : this.api.create(this.apiKey.trim(), payload);
+    const request = this.editing ? this.api.update(this.adminUsername.trim(), this.adminPassword, this.editing.id, payload) : this.api.create(this.adminUsername.trim(), this.adminPassword, payload);
     request.subscribe({
       next: () => { this.saving = false; this.editorOpen = false; this.message = this.editing ? 'Product updated.' : 'Product created.'; this.isError = false; this.loadProducts(); },
       error: error => { this.saving = false; this.editorError = this.errorMessage(error, 'Could not save product.'); }
     });
   }
   remove(product: Product): void {
-    if (!this.apiKey.trim() || !window.confirm('Delete "' + product.name + '"? This removes it from the catalog.')) return;
-    this.message = ''; this.api.delete(this.apiKey.trim(), product.id).subscribe({
+    if (!this.authenticated || !window.confirm('Delete "' + product.name + '"? This removes it from the catalog.')) return;
+    this.message = ''; this.api.delete(this.adminUsername.trim(), this.adminPassword, product.id).subscribe({
       next: () => { this.products = this.products.filter(p => p.id !== product.id); this.message = 'Product deleted.'; this.isError = false; },
       error: error => this.reportError(error, 'Could not delete product.')
     });
@@ -180,7 +185,8 @@ export class AppComponent {
   private errorMessage(error: unknown, fallback: string): string {
     if (error instanceof HttpErrorResponse) {
       if (error.status === 0) return 'Cannot reach the API. Check the Render service and CORS configuration.';
-      if (error.status === 401) return 'Admin key rejected. Check ADMIN_API_KEY in Render and try again.';
+      if (error.status === 401) return 'Login failed. Check ADMIN_USERNAME and ADMIN_PASSWORD in Render.';
+      if (error.status === 403) return 'Your account is not authorized to manage products.';
       if (error.status === 400) return 'Some product details are invalid. Check SKU, name, unit, price and stock.';
       if (error.status === 409) return 'That SKU may already exist. Choose a unique SKU.';
       if (error.status === 404) return 'The product no longer exists. Refresh the catalog.';
