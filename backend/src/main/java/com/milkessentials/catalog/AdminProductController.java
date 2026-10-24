@@ -45,10 +45,6 @@ public class AdminProductController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "A product with this SKU already exists. Choose a unique SKU.");
         }
         Product product = new Product();
-        if (productRepository.existsBySkuIgnoreCase(request.sku().trim())
-                && !product.getSku().equalsIgnoreCase(request.sku().trim())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "A product with this SKU already exists. Choose a unique SKU.");
-        }
         request.applyTo(product);
         return ProductResponse.from(productRepository.save(product));
     }
@@ -57,6 +53,10 @@ public class AdminProductController {
     public ProductResponse update(@PathVariable Long id, @Valid @RequestBody ProductRequest request) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+        if (productRepository.existsBySkuIgnoreCase(request.sku().trim())
+                && !product.getSku().equalsIgnoreCase(request.sku().trim())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A product with this SKU already exists. Choose a unique SKU.");
+        }
         request.applyTo(product);
         return ProductResponse.from(productRepository.save(product));
     }
