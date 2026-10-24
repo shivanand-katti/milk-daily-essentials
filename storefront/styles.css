@@ -134,3 +134,8 @@
 .farm-hero-visual{aspect-ratio:1900/633;background:#f4f0df}
 .farm-hero-visual .farm-illustration{object-fit:contain;object-position:center}
 @media(max-width:560px){.farm-hero-visual{aspect-ratio:16/9}.farm-hero-visual .farm-illustration{object-fit:contain}}
+
+
+/* Respect the native hidden state for catalog loading/empty states. */
+[hidden]{display:none!important}
+.catalog-state[hidden]{display:none!important}
