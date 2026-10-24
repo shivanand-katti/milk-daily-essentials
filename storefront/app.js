@@ -26,11 +26,17 @@
   const text = (value) => String(value ?? '').trim();
   const categoryFor = (product) => {
     const value = [product.name, product.sku, product.description].join(' ').toLowerCase();
-    if (/milk|curd|yogurt|paneer|cheese|butter|ghee|dairy/.test(value)) return 'Dairy';
+    if (/buffalo milk|cow milk|milk/.test(value)) return 'Milk';
+    if (/curd|yogurt|yoghurt/.test(value)) return 'Curd';
+    if (/paneer/.test(value)) return 'Paneer';
+    if (/ghee/.test(value)) return 'Ghee';
+    if (/butter/.test(value)) return 'Butter';
     if (/egg/.test(value)) return 'Eggs';
+    if (/fruit|apple|orange|banana|grape|mango/.test(value)) return 'Fruits';
+    if (/vegetable|tomato|onion|potato|carrot|spinach|greens/.test(value)) return 'Vegetables';
+    if (/cheese|dairy/.test(value)) return 'Dairy';
     if (/rice|atta|flour|dal|lentil|oil|sugar|salt|grain|pulses|wheat|masala|spice/.test(value)) return 'Pantry';
     if (/soap|detergent|cleaner|tissue|household|dishwash/.test(value)) return 'Home care';
-    if (/fruit|apple|orange|banana|vegetable|tomato|onion|potato/.test(value)) return 'Fresh produce';
     return 'Essentials';
   };
   const emojiFor = (product) => {
