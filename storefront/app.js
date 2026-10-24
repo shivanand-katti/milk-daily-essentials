@@ -19,6 +19,7 @@
   const toast = document.querySelector('#toast');
   const currency = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
   const cart = new Map();
+  const CART_STORAGE_KEY = 'fresh-milk-basket-v1';
   let products = [];
   let activeCategory = 'All';
   let toastTimeout;
@@ -230,7 +231,45 @@
     if (amount > 0) showToast(text(product.name) + ' added to your basket.');
   }
 
+  function restoreCart() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
+      if (!Array.isArray(saved)) return;
+      saved.forEach((entry) => {
+        if (!entry || !Number.isFinite(Number(entry.quantity)) || Number(entry.quantity) < 1 || !entry.product) return;
+        const product = entry.product;
+        const id = product.id ?? product.sku ?? product.name;
+        if (id !== undefined && id !== null) cart.set(id, { product, quantity: Math.floor(Number(entry.quantity)) });
+      });
+    } catch (error) {
+      console.warn('Could not restore saved basket:', error);
+    }
+  }
+
+  function saveCart() {
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify([...cart.values()].map(({ product, quantity }) => ({ product, quantity }))));
+    } catch (error) {
+      console.warn('Could not save basket on this device:', error);
+    }
+  }
+
+  function reconcileCartWithCatalog() {
+    const byId = new Map(products.map((product) => [String(product.id ?? product.sku ?? product.name), product]));
+    for (const [id, item] of cart.entries()) {
+      const current = byId.get(String(id));
+      if (!current || current.available === false || availableStock(current) <= 0) {
+        cart.delete(id);
+        continue;
+      }
+      item.product = current;
+      item.quantity = Math.min(item.quantity, availableStock(current));
+      if (item.quantity < 1) cart.delete(id);
+    }
+  }
+
   function renderCart() {
+    saveCart();
     const totalCount = cartCountTotal();
     const total = cartTotal();
     cartCount.textContent = totalCount;
@@ -302,8 +341,9 @@
       const data = await response.json();
       if (!Array.isArray(data)) throw new Error('Catalog response was not a product list');
       products = data.filter((product) => product && product.available !== false);
+      reconcileCartWithCatalog();
       activeCategory = 'All';
-      renderFilters(); renderProducts(); state.hidden = true;
+      renderFilters(); renderCart(); renderProducts(); state.hidden = true;
       if (!products.length) { state.hidden = false; state.textContent = 'The shelves are taking a breather. Please check back soon.'; }
     } catch (error) {
       state.hidden = false; state.replaceChildren();
@@ -325,6 +365,7 @@
   document.querySelector('#checkout-preview').addEventListener('click', () => showToast('Checkout and delivery scheduling are the next development milestone.'));
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && cartDrawer.classList.contains('open')) closeCart(); });
   document.querySelector('#year').textContent = new Date().getFullYear();
+  restoreCart();
   renderCart();
   loadProducts();
 })();
