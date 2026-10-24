@@ -67,9 +67,11 @@
   const fallbackPhotoFor = (product) => {
     const value = [product.name, product.sku, product.description].join(' ').toLowerCase();
     if (/buffalo milk|cow milk|milk/.test(value)) return 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=700&q=85';
-    if (/curd|yogurt|yoghurt/.test(value)) return 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=700&q=85';
-    if (/paneer|cheese/.test(value)) return 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=700&q=85';
-    if (/egg/.test(value)) return 'https://images.unsplash.com/photo-1506976785307-8732e783aee6?auto=format&fit=crop&w=700&q=85';
+    if (/curd|yogurt|yoghurt/.test(value)) return 'https://images.unsplash.com/photo-1571212515416-fef01fc43637?auto=format&fit=crop&w=700&q=85';
+    if (/paneer/.test(value)) return 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=700&q=85';
+    if (/cheese/.test(value)) return 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=700&q=85';
+    if (/egg/.test(value)) return 'https://images.unsplash.com/photo-1635842900671-e4b521d580c4?auto=format&fit=crop&w=700&q=85';
+    if (/sugar/.test(value)) return 'https://images.unsplash.com/photo-1641679103706-fc8542e2a97a?auto=format&fit=crop&w=700&q=85';
     if (/rice|grain|atta|flour|wheat|dal|lentil|pulses/.test(value)) return 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=700&q=85';
     if (/fruit|apple|orange|banana|grape|mango/.test(value)) return 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=700&q=85';
     if (/vegetable|tomato|onion|potato|carrot|spinach|greens/.test(value)) return 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=85';
@@ -130,7 +132,7 @@
     tag.className = 'product-tag';
     tag.textContent = categoryFor(product) === 'Essentials' ? 'EVERYDAY PICK' : categoryFor(product).toUpperCase();
     visual.append(tag);
-    const imageUrl = imageUrlFor(product.imageUrl) || fallbackPhotoFor(product);
+    const imageUrl = fallbackPhotoFor(product) || imageUrlFor(product.imageUrl);
     if (imageUrl) {
       const image = document.createElement('img');
       image.src = imageUrl;
