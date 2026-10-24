@@ -188,7 +188,8 @@ export class AppComponent {
       if (error.status === 401) return 'Login failed. Check ADMIN_USERNAME and ADMIN_PASSWORD in Render.';
       if (error.status === 403) return 'Your account is not authorized to manage products.';
       if (error.status === 400) return 'Some product details are invalid. Check SKU, name, unit, price and stock.';
-      if (error.status === 409) return 'That SKU may already exist. Choose a unique SKU.';
+      if (error.status === 409) return 'This SKU already exists. Open the existing product to edit it, or enter a unique SKU.';
+      if (error.status >= 500) return 'The server could not save this product. Check whether its SKU already exists, then try again.';
       if (error.status === 404) return 'The product no longer exists. Refresh the catalog.';
     }
     return fallback;
