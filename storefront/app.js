@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const API_URL = 'https://milk-daily-essentials.onrender.com/api/v1/products';
+  const ORDER_API_URL = 'https://milk-daily-essentials.onrender.com/api/v1/orders';
   const grid = document.querySelector('#product-grid');
   const state = document.querySelector('#catalog-state');
   const empty = document.querySelector('#empty-state');
@@ -17,6 +18,12 @@
   const subtotal = document.querySelector('#cart-subtotal');
   const drawerItemCount = document.querySelector('#drawer-item-count');
   const toast = document.querySelector('#toast');
+  const checkoutModal = document.querySelector('#checkout-modal');
+  const checkoutBackdrop = document.querySelector('#checkout-backdrop');
+  const checkoutForm = document.querySelector('#checkout-form');
+  const checkoutError = document.querySelector('#checkout-error');
+  const checkoutTotal = document.querySelector('#checkout-total');
+  const placeOrderButton = document.querySelector('#place-order');
   const currency = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
   const cart = new Map();
   const CART_STORAGE_KEY = 'fresh-milk-basket-v1';
@@ -104,6 +111,67 @@
     backdrop.hidden = true;
     document.body.classList.remove('drawer-open');
     document.querySelector('#open-cart').focus();
+  }
+
+  function openCheckout() {
+    if (!cart.size) { showToast('Add a product to your basket first.'); return; }
+    checkoutError.hidden = true;
+    checkoutTotal.textContent = currency.format(cartTotal());
+    checkoutBackdrop.hidden = false;
+    checkoutModal.hidden = false;
+    document.body.classList.add('checkout-open');
+    document.querySelector('#close-checkout').focus();
+  }
+
+  function closeCheckout() {
+    checkoutModal.hidden = true;
+    checkoutBackdrop.hidden = true;
+    document.body.classList.remove('checkout-open');
+    document.querySelector('#checkout-preview').focus();
+  }
+
+  async function submitCheckout(event) {
+    event.preventDefault();
+    if (!cart.size) { checkoutError.textContent = 'Your basket is empty.'; checkoutError.hidden = false; return; }
+    const formData = new FormData(checkoutForm);
+    const payload = Object.fromEntries(formData.entries());
+    payload.items = [...cart.values()].map(({ product, quantity }) => ({ productId: Number(product.id), quantity }));
+    if (payload.items.some((item) => !Number.isInteger(item.productId) || item.productId < 1)) {
+      checkoutError.textContent = 'One of the products has an invalid catalog ID. Refresh the catalog and try again.';
+      checkoutError.hidden = false;
+      return;
+    }
+    placeOrderButton.disabled = true;
+    placeOrderButton.textContent = 'Submitting order…';
+    checkoutError.hidden = true;
+    try {
+      const response = await fetch(ORDER_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const detail = result.detail || result.message || result.error;
+        throw new Error(detail || (response.status === 409
+          ? 'Stock changed while you were checking out. Refresh the catalog and review your basket.'
+          : 'We could not place your order. Please check your details and try again.'));
+      }
+      cart.clear();
+      saveCart();
+      renderCart();
+      checkoutForm.reset();
+      closeCheckout();
+      closeCart();
+      await loadProducts();
+      showToast('Order placed! Your order number is ' + result.orderNumber + '.');
+    } catch (error) {
+      checkoutError.textContent = error.message || 'We could not place your order. Please try again.';
+      checkoutError.hidden = false;
+    } finally {
+      placeOrderButton.disabled = false;
+      placeOrderButton.innerHTML = 'Place order <span>↗</span>';
+    }
   }
 
   function renderFilters() {
@@ -362,8 +430,11 @@
   backdrop.addEventListener('click', closeCart);
   document.querySelector('#start-shopping').addEventListener('click', closeCart);
   document.querySelector('#build-morning').addEventListener('click', buildMorningBasket);
-  document.querySelector('#checkout-preview').addEventListener('click', () => showToast('Checkout and delivery scheduling are the next development milestone.'));
-  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && cartDrawer.classList.contains('open')) closeCart(); });
+  document.querySelector('#checkout-preview').addEventListener('click', openCheckout);
+  document.querySelector('#close-checkout').addEventListener('click', closeCheckout);
+  checkoutBackdrop.addEventListener('click', closeCheckout);
+  checkoutForm.addEventListener('submit', submitCheckout);
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !checkoutModal.hidden) closeCheckout(); else if (event.key === 'Escape' && cartDrawer.classList.contains('open')) closeCart(); });
   document.querySelector('#year').textContent = new Date().getFullYear();
   restoreCart();
   renderCart();
