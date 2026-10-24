@@ -94,7 +94,12 @@ public class OrderController {
                     line.productId());
             if (rows.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A product in your basket no longer exists.");
             Map<String, Object> row = rows.get(0);
-            if (!Boolean.TRUE.equals(row.get("is_available"))) {
+            Object availableValue = row.get("is_available");
+            boolean available = Boolean.TRUE.equals(availableValue)
+                    || (availableValue instanceof Number number && number.intValue() != 0)
+                    || "true".equalsIgnoreCase(String.valueOf(availableValue))
+                    || "1".equals(String.valueOf(availableValue));
+            if (!available) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, row.get("name") + " is no longer available.");
             }
             Object stockValue = row.get("stock_quantity");
