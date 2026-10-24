@@ -62,6 +62,20 @@
       return ['https:', 'http:'].includes(url.protocol) ? url.href : '';
     } catch { return ''; }
   };
+  // Use real product photography when the admin/API record has no image URL.
+  // API-provided imageUrl always takes priority.
+  const fallbackPhotoFor = (product) => {
+    const value = [product.name, product.sku, product.description].join(' ').toLowerCase();
+    if (/buffalo milk|cow milk|milk/.test(value)) return 'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=700&q=85';
+    if (/curd|yogurt|yoghurt/.test(value)) return 'https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&w=700&q=85';
+    if (/paneer|cheese/.test(value)) return 'https://images.unsplash.com/photo-1486297678162-eb2a19b0a32d?auto=format&fit=crop&w=700&q=85';
+    if (/egg/.test(value)) return 'https://images.unsplash.com/photo-1506976785307-8732e783aee6?auto=format&fit=crop&w=700&q=85';
+    if (/rice|grain|atta|flour|wheat|dal|lentil|pulses/.test(value)) return 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=700&q=85';
+    if (/fruit|apple|orange|banana|grape|mango/.test(value)) return 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=700&q=85';
+    if (/vegetable|tomato|onion|potato|carrot|spinach|greens/.test(value)) return 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=700&q=85';
+    if (/ghee|butter/.test(value)) return 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=700&q=85';
+    return '';
+  };
   const availableStock = (product) => product.stockQuantity === null || product.stockQuantity === undefined ? Infinity : Math.max(0, Number(product.stockQuantity) || 0);
   const cartQuantity = (id) => cart.get(id)?.quantity || 0;
   const cartTotal = () => [...cart.values()].reduce((sum, item) => sum + Number(item.product.price || 0) * item.quantity, 0);
@@ -116,7 +130,7 @@
     tag.className = 'product-tag';
     tag.textContent = categoryFor(product) === 'Essentials' ? 'EVERYDAY PICK' : categoryFor(product).toUpperCase();
     visual.append(tag);
-    const imageUrl = imageUrlFor(product.imageUrl);
+    const imageUrl = imageUrlFor(product.imageUrl) || fallbackPhotoFor(product);
     if (imageUrl) {
       const image = document.createElement('img');
       image.src = imageUrl;
