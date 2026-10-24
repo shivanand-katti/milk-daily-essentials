@@ -41,7 +41,14 @@ public class AdminProductController {
     @PostMapping
     @org.springframework.web.bind.annotation.ResponseStatus(HttpStatus.CREATED)
     public ProductResponse create(@Valid @RequestBody ProductRequest request) {
+        if (productRepository.existsBySkuIgnoreCase(request.sku().trim())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A product with this SKU already exists. Choose a unique SKU.");
+        }
         Product product = new Product();
+        if (productRepository.existsBySkuIgnoreCase(request.sku().trim())
+                && !product.getSku().equalsIgnoreCase(request.sku().trim())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A product with this SKU already exists. Choose a unique SKU.");
+        }
         request.applyTo(product);
         return ProductResponse.from(productRepository.save(product));
     }
